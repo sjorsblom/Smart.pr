@@ -14,6 +14,13 @@ bp_contactlists = Blueprint('api-contactlists', __name__,
 @bp_contactlists.route('', methods=['POST'])
 @require_login
 def create_contactlist():
+    """Create a contactlist
+
+    Returns:
+      A json object containing the newly created contactlist object
+    Raises:
+      HTTP 409 Conflict, containing the messages with the conflict.
+    """
     json_data = request.get_json()
 
     # TODO add data cleaning / verification
@@ -30,6 +37,11 @@ def create_contactlist():
 @bp_contactlists.route('', methods=['GET'])
 @require_login
 def get_contactlists():
+    """Get contactslists
+
+    Returns:
+      An JSONArray of contact objects
+    """
     contactlists = ContactList.objects(user=g.user)
     return ContactListSchema().dumps(contactlists, many=True), HTTPStatus.OK
 
@@ -37,6 +49,15 @@ def get_contactlists():
 @bp_contactlists.route('/<contactlist_id>', methods=['GET'])
 @require_login
 def get_contactlist(contactlist_id):
+    """Get contactslist by ID
+
+    Args:
+      contactlist_id (str): Object ID of the contactslist
+    Returns:
+      A json object of the contactslist
+    Raises:
+      HTTP 404 Not Found.
+    """
     try:
         contactlist = ContactList.objects(pk=contactlist_id, user=g.user).get()
     except DoesNotExist:
@@ -49,6 +70,14 @@ def get_contactlist(contactlist_id):
 @bp_contactlists.route('/<contactlist_id>', methods=['DELETE'])
 @require_login
 def delete_contactlist(contactlist_id):
+    """Delete contactslist by ID
+
+    Args:
+      contactlist_id (str): Object ID of the contactslist
+
+    Returns:
+      A success message
+    """
     ContactList.objects(pk=contactlist_id, user=g.user).delete()
     return "Contactlist successfully deleted!", HTTPStatus.OK
 
@@ -56,6 +85,15 @@ def delete_contactlist(contactlist_id):
 @bp_contactlists.route('/<contactlist_id>/contacts', methods=['GET'])
 @require_login
 def get_contacts_from_contactlist(contactlist_id):
+    """Get contacts from cotnactlist by ID
+
+    Args:
+      contactlist_id (str): Object ID of the contactlist
+    Returns:
+      An JSONArray of contact objectsuser
+    Raises:
+      HTTP 404 Not Found.
+    """
     try:
         contactlist = ContactList.objects(pk=contactlist_id, user=g.user).get()
     except DoesNotExist:
@@ -73,6 +111,16 @@ def get_contacts_from_contactlist(contactlist_id):
 @bp_contactlists.route('/<contactlist_id>/contacts/<contact_id>', methods=['POST'])
 @require_login
 def add_contact_to_contactlist(contactlist_id, contact_id):
+    """Add a contact to contactlist
+
+    Args:
+      contact_id (str): Object ID of the contact
+      contactlist_id (str): Object ID of the contactlist
+    Returns:
+      A json object of the updated contactlist
+    Raises:
+      HTTP 404 Not Found.
+    """
     try:
         contact = Contact.objects(pk=contact_id, user=g.user).get()
     except DoesNotExist:
@@ -93,6 +141,16 @@ def add_contact_to_contactlist(contactlist_id, contact_id):
 @bp_contactlists.route('/<contactlist_id>/contacts/<contact_id>', methods=['DELETE'])
 @require_login
 def remove_contact_from_contactlist(contactlist_id, contact_id):
+    """Remove a contact from contactlist
+
+    Args:
+      contact_id (str): Object ID of the contact
+      contactlist_id (str): Object ID of the contactlist
+    Returns:
+      A json object of the updated contactlist
+    Raises:
+      HTTP 404 Not Found.
+    """
     try:
         contact = Contact.objects(pk=contact_id, user=g.user).get()
     except DoesNotExist:

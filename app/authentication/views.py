@@ -15,6 +15,13 @@ bp_authentication = Blueprint('api-authentication', __name__,
 
 @bp_authentication.route('/login', methods=['POST'])
 def login():
+    """Login a user
+
+    Returns:
+      A json object of the user with a new token
+    Raises:
+      HTTP 401 Unauthorized, containing a message of the reason
+    """
     json_data = request.get_json()
 
     email = json_data['email']
@@ -48,6 +55,13 @@ def login():
 
 @bp_authentication.route('/register', methods=['POST'])
 def register():
+    """Register a user
+
+    Returns:
+      A json object of the user with a new token
+    Raises:
+      HTTP 409 Conflict, containing the messages with the conflict.
+    """
     json_data = request.get_json()
 
     email = json_data['email']
@@ -64,5 +78,16 @@ def register():
         email=email,
         password=generate_password_hash(password)
     ).save()
+
+    # Add token to skip having to login
+    secret_key = safe_get_env_var("SECRET_KEY")
+    user.token = jwt.encode(
+        {
+            'user_id': user.id,
+            'exp': datetime.utcnow() + timedelta(minutes=60)
+        },
+        secret_key,
+        "HS256"
+    )
 
     return UserSchema().dumps(user), HTTPStatus.OK

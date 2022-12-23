@@ -7,6 +7,13 @@ from mongoengine import DoesNotExist
 
 
 def verify_authentication():
+    """Verify the user by Authorization Bearer token
+
+    Returns:
+      A session vairbale in flask.g containing the id of the current user
+    Raises:
+      HTTP 401 Unauthorized, containing a message of the reason
+    """
     try:
         bearer = request.headers.get('Authorization')
         auth_token = bearer.split()[1]
