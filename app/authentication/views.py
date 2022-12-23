@@ -23,6 +23,7 @@ def login():
     try:
         user = User.objects(email=email).get()
         if check_password_hash(user.password, password):
+            # Add jwt token to be used during calls to other endpoints
             secret_key = safe_get_env_var("SECRET_KEY")
             user.token = jwt.encode(
                 {

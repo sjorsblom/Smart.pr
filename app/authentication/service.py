@@ -15,8 +15,8 @@ def verify_authentication():
             "error": "Invalid Token"
         })
 
+    # Decode JWT Token
     secret_key = safe_get_env_var("SECRET_KEY")
-
     try:
         payload = jwt.decode(auth_token, secret_key, algorithms=["HS256"])
     except jwt.InvalidSignatureError:
@@ -32,8 +32,9 @@ def verify_authentication():
             "error": "Invalid Token"
         })
 
+    # Verify existence of user
     try:
-        user = User.objects(id=payload['user_id']).get()
+        User.objects(id=payload['user_id']).get()
     except DoesNotExist:
         json_abort(HTTPStatus.UNAUTHORIZED, {
             "error": "Invalid Token"
