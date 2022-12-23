@@ -16,7 +16,9 @@ MarkupSafe==2.1.1
 marshmallow==3.19.0
 mongoengine==0.24.2
 packaging==22.0
+PyJWT==2.6.0
 pymongo==4.3.3
+python-dotenv==0.21.0
 pytz==2022.7
 six==1.16.0
 Werkzeug==2.2.2
