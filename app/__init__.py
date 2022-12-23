@@ -15,6 +15,9 @@ from flask_cors import CORS
 from flask_mongoengine import MongoEngine
 from flask_talisman import Talisman
 from app.config import config
+from app.authentication.views import bp_authentication
+from app.contactlists.view import bp_contactlists
+from app.contacts.view import bp_contacts
 
 ##########################################
 # Instantiate the extensions
@@ -22,28 +25,29 @@ from app.config import config
 
 db = MongoEngine()
 
+
 def create_app(config_name=None):
     ##########################################
     # Instantiate the app
     ##########################################
-     
+
     app = Flask(__name__)
-    
+
     ##########################################
     # Check and apply config
     ##########################################
-       
+
     if config_name is None:
         config_name = os.environ.get("FLASK_CONFIG", "production")
-    
+
     app.config.from_object(config[config_name])
 
     ##########################################
     # Set up extensions
     ##########################################
-    
+
     db.init_app(app)
-    
+
     ##########################################
     # HTTP(S) Security Headers
     ##########################################
@@ -71,21 +75,25 @@ def create_app(config_name=None):
         response.headers['Expires'] = '0'
         response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
         return response
-    
+
     ##########################################
     # CORS
     ##########################################
 
     CORS(app, resources={r"*": {"origins": "*"}})
-    
+
     ##########################################
     # Blueprints
     ##########################################
 
+    app.register_blueprint(bp_authentication)
+    app.register_blueprint(bp_contactlists)
+    app.register_blueprint(bp_contacts)
+
     ##########################################
     # Shell context for flask cli
     ##########################################
-    
+
     @app.shell_context_processor
     def ctx():
         return {"app": app, "db": db}
