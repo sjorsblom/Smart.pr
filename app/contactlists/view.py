@@ -6,11 +6,11 @@ from app.authentication.decorators import require_login
 from mongoengine import DoesNotExist
 from app.helpers.utils import json_abort
 
-bp_list = Blueprint('api-contactlists', __name__,
-                    url_prefix='/api/contactlists')
+bp_contactlists = Blueprint('api-contactlists', __name__,
+                            url_prefix='/api/contactlists')
 
 
-@bp_list.route('/', methods=['POST'])
+@bp_contactlists.route('/', methods=['POST'])
 @require_login
 def create_contactlist():
     json_data = request.get_json()
@@ -25,14 +25,14 @@ def create_contactlist():
     return ContactListSchema().dumps(contactlist), HTTPStatus.CREATED
 
 
-@bp_list.route('/', methods=['GET'])
+@bp_contactlists.route('/', methods=['GET'])
 @require_login
 def get_contactlists():
     contactlists = ContactList.objects(user=g.user)
     return ContactListSchema().dumps(contactlists, many=True), HTTPStatus.OK
 
 
-@bp_list.route('/<contactlist_id>', methods=['GET'])
+@bp_contactlists.route('/<contactlist_id>', methods=['GET'])
 @require_login
 def get_contactlist(contactlist_id):
     try:
@@ -44,14 +44,14 @@ def get_contactlist(contactlist_id):
     return ContactListSchema().dumps(contactlist), HTTPStatus.OK
 
 
-@bp_list.route('/<contactlist_id>', methods=['DELETE'])
+@bp_contactlists.route('/<contactlist_id>', methods=['DELETE'])
 @require_login
 def delete_contactlist(contactlist_id):
     ContactList.objects(pk=contactlist_id, user=g.user).delete()
     return "Contactlist successfully deleted!", HTTPStatus.OK
 
 
-@bp_list.route('/<contactlist_id>/contacts', methods=['GET'])
+@bp_contactlists.route('/<contactlist_id>/contacts', methods=['GET'])
 def get_contacts_from_contactlist(contactlist_id):
     try:
         contactlist = ContactList.objects(pk=contactlist_id, user=g.user).get()
@@ -66,7 +66,7 @@ def get_contacts_from_contactlist(contactlist_id):
     return ContactSchema().dumps(contacts, many=True), HTTPStatus.OK
 
 
-@bp_list.route('/<contactlist_id>/contacts/<contact_id>', methods=['POST'])
+@bp_contactlists.route('/<contactlist_id>/contacts/<contact_id>', methods=['POST'])
 def add_contact_to_contactlist(contactlist_id, contact_id):
     try:
         contact = Contact.objects(pk=contact_id, user=g.user).get()
@@ -84,7 +84,7 @@ def add_contact_to_contactlist(contactlist_id, contact_id):
     return ContactListSchema().dumps(contactlist), HTTPStatus.OK
 
 
-@bp_list.route('/<contactlist_id>/contacts/<contact_id>', methods=['DELETE'])
+@bp_contactlists.route('/<contactlist_id>/contacts/<contact_id>', methods=['DELETE'])
 def remove_contact_from_contactlist(contactlist_id, contact_id):
     try:
         contact = Contact.objects(pk=contact_id, user=g.user).get()

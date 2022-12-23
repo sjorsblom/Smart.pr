@@ -6,11 +6,11 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from mongoengine import DoesNotExist
 
 
-bp_list = Blueprint('api-authentication', __name__,
-                    url_prefix='/api/authentication')
+bp_authentication = Blueprint('api-authentication', __name__,
+                              url_prefix='/api/authentication')
 
 
-@bp_list.route('/login', methods=['POST'])
+@bp_authentication.route('/login', methods=['POST'])
 def login():
     json_data = request.get_json()
 
@@ -33,7 +33,7 @@ def login():
     })
 
 
-@bp_list.route('/register', methods=['POST'])
+@bp_authentication.route('/register', methods=['POST'])
 def register():
     json_data = request.get_json()
 

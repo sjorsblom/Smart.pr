@@ -6,10 +6,10 @@ from mongoengine import DoesNotExist
 from app.helpers.utils import json_abort
 
 
-bp_list = Blueprint('api-contacts', __name__, url_prefix='/api/contacts')
+bp_contacts = Blueprint('api-contacts', __name__, url_prefix='/api/contacts')
 
 
-@bp_list.route('/', methods=['POST'])
+@bp_contacts.route('/', methods=['POST'])
 @require_login
 def create_contact():
     json_data = request.get_json()
@@ -25,14 +25,14 @@ def create_contact():
     return ContactSchema().dumps(contact), HTTPStatus.CREATED
 
 
-@bp_list.route('/', methods=['GET'])
+@bp_contacts.route('/', methods=['GET'])
 @require_login
 def get_contacts():
     contacts = Contact.objects(user=g.user)
     return ContactSchema().dumps(contacts, many=True), HTTPStatus.OK
 
 
-@bp_list.route('/<contact_id>', methods=['GET'])
+@bp_contacts.route('/<contact_id>', methods=['GET'])
 @require_login
 def get_contact(contact_id):
     try:
@@ -44,7 +44,7 @@ def get_contact(contact_id):
     return ContactSchema().dumps(contact), HTTPStatus.OK
 
 
-@bp_list.route('/<contact_id>', methods=['DELETE'])
+@bp_contacts.route('/<contact_id>', methods=['DELETE'])
 @require_login
 def delete_contact(contact_id):
     Contact.objects(pk=contact_id, user=g.user).delete()
