@@ -4,6 +4,9 @@ from app.helpers.utils import json_abort
 from http import HTTPStatus
 from werkzeug.security import check_password_hash, generate_password_hash
 from mongoengine import DoesNotExist
+from app.helpers.utils import safe_get_env_var
+from datetime import timedelta, datetime
+import jwt
 
 
 bp_authentication = Blueprint('api-authentication', __name__,
@@ -20,6 +23,15 @@ def login():
     try:
         user = User.objects(email=email).get()
         if check_password_hash(user.password, password):
+            secret_key = safe_get_env_var("SECRET_KEY")
+            user.token = jwt.encode(
+                {
+                    'user_id': user.id,
+                    'exp': datetime.utcnow() + timedelta(minutes=60)
+                },
+                secret_key,
+                "HS256"
+            )
             return UserSchema().dumps(user), HTTPStatus.OK
     except DoesNotExist:
         json_abort(HTTPStatus.UNAUTHORIZED, {
@@ -50,6 +62,6 @@ def register():
     user = User(
         email=email,
         password=generate_password_hash(password)
-    )
+    ).save()
 
     return UserSchema().dumps(user), HTTPStatus.OK

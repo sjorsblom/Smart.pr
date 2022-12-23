@@ -39,4 +39,4 @@ def verify_authentication():
             "error": "Invalid Token"
         })
 
-    g.user = UserSchema().dumps(user)
+    g.user = payload['user_id']
