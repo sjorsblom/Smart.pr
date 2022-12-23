@@ -1,6 +1,7 @@
 from http import HTTPStatus
 from flask import Blueprint, request, g
 from app.contacts.entities.contact import Contact, ContactSchema
+from app.authentication.entities.user import User
 from app.authentication.decorators import require_login
 from mongoengine import DoesNotExist
 from app.helpers.utils import json_abort
@@ -14,14 +15,15 @@ bp_contacts = Blueprint('api-contacts', __name__, url_prefix='/api/contacts')
 def create_contact():
     json_data = request.get_json()
 
-    cleaned_data = ContactSchema().load(
-        user=g.user,
+    # TODO add data cleaning / verification
+
+    contact = Contact(
+        user=User.objects(pk=g.user).get(),
         name=json_data['name'],
         number=json_data['number'],
         email=json_data['email']
-    )
+    ).save()
 
-    contact = Contact(cleaned_data).save()
     return ContactSchema().dumps(contact), HTTPStatus.CREATED
 
 

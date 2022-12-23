@@ -1,6 +1,7 @@
 from flask import Blueprint, request, g
 from app.contactlists.entities.contactlist import ContactList, ContactListSchema
 from app.contacts.entities.contact import Contact, ContactSchema
+from app.authentication.entities.user import User
 from http import HTTPStatus
 from app.authentication.decorators import require_login
 from mongoengine import DoesNotExist
@@ -15,13 +16,14 @@ bp_contactlists = Blueprint('api-contactlists', __name__,
 def create_contactlist():
     json_data = request.get_json()
 
-    cleaned_data = ContactListSchema().load(
-        user=g.user,
+    # TODO add data cleaning / verification
+
+    contactlist = ContactList(
+        user=User.objects(pk=g.user).get(),
         name=json_data['name'],
         description=json_data['description']
-    )
+    ).save()
 
-    contactlist = ContactList(cleaned_data).save()
     return ContactListSchema().dumps(contactlist), HTTPStatus.CREATED
 
 
