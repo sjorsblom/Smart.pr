@@ -10,7 +10,7 @@ from app.helpers.utils import json_abort
 bp_contacts = Blueprint('api-contacts', __name__, url_prefix='/api/contacts')
 
 
-@bp_contacts.route('/', methods=['POST'])
+@bp_contacts.route('', methods=['POST'])
 @require_login
 def create_contact():
     json_data = request.get_json()
@@ -27,7 +27,7 @@ def create_contact():
     return ContactSchema().dumps(contact), HTTPStatus.CREATED
 
 
-@bp_contacts.route('/', methods=['GET'])
+@bp_contacts.route('', methods=['GET'])
 @require_login
 def get_contacts():
     contacts = Contact.objects(user=g.user)

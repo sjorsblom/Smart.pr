@@ -11,7 +11,7 @@ bp_contactlists = Blueprint('api-contactlists', __name__,
                             url_prefix='/api/contactlists')
 
 
-@bp_contactlists.route('/', methods=['POST'])
+@bp_contactlists.route('', methods=['POST'])
 @require_login
 def create_contactlist():
     json_data = request.get_json()
@@ -27,7 +27,7 @@ def create_contactlist():
     return ContactListSchema().dumps(contactlist), HTTPStatus.CREATED
 
 
-@bp_contactlists.route('/', methods=['GET'])
+@bp_contactlists.route('', methods=['GET'])
 @require_login
 def get_contactlists():
     contactlists = ContactList.objects(user=g.user)
@@ -54,6 +54,7 @@ def delete_contactlist(contactlist_id):
 
 
 @bp_contactlists.route('/<contactlist_id>/contacts', methods=['GET'])
+@require_login
 def get_contacts_from_contactlist(contactlist_id):
     try:
         contactlist = ContactList.objects(pk=contactlist_id, user=g.user).get()
@@ -64,11 +65,13 @@ def get_contacts_from_contactlist(contactlist_id):
     contacts = contactlist.contacts
     name = request.args.get('name', default=None, type=str)
     if name:
-        list(filter(lambda contact: contact['name'] in name, contacts))
+        contacts = list(
+            filter(lambda contact: name in contact['name'], contacts))
     return ContactSchema().dumps(contacts, many=True), HTTPStatus.OK
 
 
 @bp_contactlists.route('/<contactlist_id>/contacts/<contact_id>', methods=['POST'])
+@require_login
 def add_contact_to_contactlist(contactlist_id, contact_id):
     try:
         contact = Contact.objects(pk=contact_id, user=g.user).get()
@@ -83,10 +86,12 @@ def add_contact_to_contactlist(contactlist_id, contact_id):
             "error": "ContactList Not Found"
         })
     contactlist.update(add_to_set__contacts=contact)
+    contactlist = ContactList.objects(pk=contactlist_id, user=g.user).get()
     return ContactListSchema().dumps(contactlist), HTTPStatus.OK
 
 
 @bp_contactlists.route('/<contactlist_id>/contacts/<contact_id>', methods=['DELETE'])
+@require_login
 def remove_contact_from_contactlist(contactlist_id, contact_id):
     try:
         contact = Contact.objects(pk=contact_id, user=g.user).get()
@@ -101,4 +106,5 @@ def remove_contact_from_contactlist(contactlist_id, contact_id):
             "error": "ContactList Not Found"
         })
     contactlist.update(pull__contacts=contact)
+    contactlist = ContactList.objects(pk=contactlist_id, user=g.user).get()
     return ContactListSchema().dumps(contactlist), HTTPStatus.OK
